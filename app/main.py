@@ -1,10 +1,13 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -58,12 +61,12 @@ app.include_router(explain.router, prefix=prefix, tags=["Explain & Chat"])
 app.include_router(trade.router, prefix=prefix, tags=["Trade & Fee Share"])
 
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 @app.get("/", tags=["UI"], include_in_schema=False)
 async def root():
-    return FileResponse("app/static/index.html")
+    return FileResponse(str(STATIC_DIR / "index.html"))
 
 
 @app.get("/health", tags=["Health"])
