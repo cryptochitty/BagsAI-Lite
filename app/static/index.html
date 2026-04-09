@@ -109,31 +109,35 @@ function fmt(n, d=2) {
 function tokenTable(tokens) {
   if (!tokens.length) return '<div class="loading">No tokens found.</div>';
   return `<div class="table-wrap"><table>
-    <thead><tr><th>#</th><th>Token</th><th>Price</th><th>Vol 24h</th><th>Holders</th><th>Score</th><th>Tier</th><th></th></tr></thead>
+    <thead><tr><th>#</th><th>Token</th><th>Price</th><th>Vol 24h</th><th>Score</th><th>Tier</th><th>Rec</th><th></th></tr></thead>
     <tbody>${tokens.map((t,i) => `<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td><strong>${t.name}</strong><br><span style="color:var(--muted);font-size:12px">$${t.symbol}</span></td>
       <td>$${t.price_usd != null ? t.price_usd.toFixed(6) : '—'}</td>
       <td>$${fmt(t.volume_24h)}</td>
-      <td>${fmt(t.holder_count,0)}</td>
       <td><div class="score-wrap"><span>${t.composite_score != null ? t.composite_score.toFixed(1) : '—'}</span>
         <div class="score-bar"><div class="score-fill" style="width:${t.composite_score||0}%;background:${scoreColor(t.composite_score)}"></div></div></div></td>
       <td><span class="tier tier-${t.tier}">${t.tier}</span></td>
+      <td style="color:${t.recommendation==='BUY'?'var(--green)':t.recommendation==='AVOID'?'var(--red)':'var(--muted)'};font-size:12px">${t.recommendation||'—'}</td>
       <td>${t.hidden_gem ? '💎' : ''}</td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
 
+function toArray(d) {
+  return Array.isArray(d) ? d : (d.tokens || d.gems || []);
+}
+
 async function loadTokens() {
   try {
-    const d = await fetch(`${BASE}/tokens?limit=50`).then(r => r.json());
-    const tokens = d.tokens || [];
-    document.getElementById('stat-total').textContent = d.total || tokens.length;
+    const d = await fetch(`${BASE}/analyze?limit=50`).then(r => r.json());
+    const tokens = toArray(d);
+    document.getElementById('stat-total').textContent = tokens.length;
     document.getElementById('stat-s').textContent = tokens.filter(t => t.tier==='S').length;
     document.getElementById('stat-gems').textContent = tokens.filter(t => t.hidden_gem).length;
-    const scores = tokens.filter(t => t.composite_score != null).map(t => t.composite_score);
+    const scores = tokens.filter(t => t.composite_score != null && t.composite_score > 0).map(t => t.composite_score);
     document.getElementById('stat-avg').textContent = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
-    document.getElementById('tokens-source').innerHTML = `<span>source: ${d.source||'api'} · ${d.total||tokens.length} tokens</span>`;
+    document.getElementById('tokens-source').innerHTML = `<span>scored & ranked · ${tokens.length} tokens</span>`;
     document.getElementById('tokens-content').innerHTML = tokenTable(tokens);
   } catch(e) {
     document.getElementById('tokens-content').innerHTML = `<div class="error-msg">Failed to load: ${e.message}</div>`;
@@ -143,7 +147,7 @@ async function loadTokens() {
 async function loadGems() {
   try {
     const d = await fetch(`${BASE}/analyze/gems?limit=10`).then(r => r.json());
-    const tokens = d.tokens || d.gems || [];
+    const tokens = toArray(d);
     document.getElementById('gems-source').innerHTML = `<span>hidden gem analysis · ${tokens.length} results</span>`;
     document.getElementById('gems-content').innerHTML = tokenTable(tokens);
   } catch(e) {
