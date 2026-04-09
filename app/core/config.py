@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # Comma-separated Solana mint addresses to track (fallback when no Bitquery)
     BAGS_TOKEN_MINTS: Optional[str] = None
 
+    # Platform fee wallet — earns revenue from fee-sharing on trades
+    PLATFORM_FEE_WALLET: Optional[str] = None
+
     # OpenAI
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o-mini"

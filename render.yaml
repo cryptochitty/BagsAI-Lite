@@ -12,9 +12,11 @@ services:
         value: "3.11"
       - key: DEBUG
         value: "false"
-      # Optional — add these in Render dashboard for live data:
+      # Optional — add these in Render dashboard:
       # - key: BAGS_API_KEY
-      #   value: your_key
+      #   value: your_key                  ← enables trade/fee-share endpoints
+      # - key: PLATFORM_FEE_WALLET
+      #   value: your_solana_wallet        ← earns on-chain revenue from trades
       # - key: BITQUERY_API_KEY
       #   value: your_key
       # - key: OPENAI_API_KEY

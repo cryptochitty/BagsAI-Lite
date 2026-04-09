@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.logging import setup_logging
-from app.api.routes import tokens, analyze, simulate, portfolio, explain
+from app.api.routes import tokens, analyze, simulate, portfolio, explain, trade
 
 setup_logging(debug=settings.DEBUG)
 logger = logging.getLogger(__name__)
@@ -54,6 +54,7 @@ app.include_router(analyze.router, prefix=prefix, tags=["Analysis"])
 app.include_router(simulate.router, prefix=prefix, tags=["Simulation"])
 app.include_router(portfolio.router, prefix=prefix, tags=["Portfolio"])
 app.include_router(explain.router, prefix=prefix, tags=["Explain & Chat"])
+app.include_router(trade.router, prefix=prefix, tags=["Trade & Fee Share"])
 
 
 @app.get("/", tags=["Health"])
