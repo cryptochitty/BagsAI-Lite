@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: bagsai-lite
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: DEBUG
+        value: "false"
+      # Optional — add these in Render dashboard for live data:
+      # - key: BAGS_API_KEY
+      #   value: your_key
+      # - key: BITQUERY_API_KEY
+      #   value: your_key
+      # - key: OPENAI_API_KEY
+      #   value: your_key
+      # - key: BAGS_TOKEN_MINTS
+      #   value: mint1,mint2,...
